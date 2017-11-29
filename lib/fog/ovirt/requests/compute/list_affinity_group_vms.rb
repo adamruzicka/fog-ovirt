@@ -11,7 +11,7 @@ module Fog
         def list_affinity_group_vms(id)
           vms = []
           Nokogiri::XML(read_xml('affinitygroup_vms.xml')).xpath('/vms/vm/@id').each do |id|
-            xml = Nokogiri::XML(read_xml('vms.xml')).xpath("/vms/vm[@id='%s']" % id.value).first
+            xml = Nokogiri::XML(read_xml('vms.xml')).xpath("/vms/vm[@id='%<id>s']" % id.value).first
             vms << ovirt_attrs(OVIRT::VM::new(self, xml))
           end
           vms

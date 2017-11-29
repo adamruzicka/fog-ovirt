@@ -4,7 +4,7 @@ module Fog
   module Compute
     class Ovirt < Fog::Service
       requires   :ovirt_username, :ovirt_password
-      recognizes :ovirt_url,      :ovirt_server,  :ovirt_port, :ovirt_api_path, :ovirt_datacenter,
+      recognizes :ovirt_url,      :ovirt_server, :ovirt_port, :ovirt_api_path, :ovirt_datacenter,
                  :ovirt_filtered_api,
                  :ovirt_ca_cert_store, :ovirt_ca_cert_file, :ovirt_ca_no_verify
 
@@ -79,7 +79,7 @@ module Fog
         def ovirt_attrs obj
           opts = {:raw => obj}
           obj.instance_variables.each do |v|
-            key = v.to_s.gsub("@","").to_sym
+            key = v.to_s.delete("@").to_sym
             value = obj.instance_variable_get(v)
             #ignore nil values
             next if value.nil?
@@ -124,6 +124,7 @@ module Fog
       class Real
         include Shared
 
+        # rubocop:disable Metrics/AbcSize
         def initialize(options={})
           require 'rbovirt'
           username   = options[:ovirt_username]
@@ -142,6 +143,7 @@ module Fog
 
           @client = OVIRT::Client.new(username, password, url, connection_opts)
         end
+        # rubocop:enable Metrics/AbcSize
 
         def api_version
           client.api_version

@@ -13,12 +13,12 @@ module Fog
         attribute :description
         attribute :profile
         attribute :display
-        attribute :storage,       :aliases => 'disk_size'
+        attribute :storage, :aliases => 'disk_size'
         attribute :creation_time
         attribute :os
         attribute :ip
         attribute :status
-        attribute :cores,         :aliases => 'cpus'
+        attribute :cores, :aliases => 'cpus'
         attribute :memory
         attribute :host
         attribute :cluster
@@ -35,7 +35,7 @@ module Fog
         attribute :disks
 
         def ready?
-          !(status =~ /down/i)
+          status !~ /down/i
         end
 
         def locked?
@@ -44,7 +44,7 @@ module Fog
         end
 
         def stopped?
-          status.downcase == 'down'
+          status.casecmp('down').zero?
         end
 
         def mac
@@ -53,8 +53,8 @@ module Fog
 
         def interfaces
           @interfaces ||= id.nil? ? [] : Fog::Compute::Ovirt::Interfaces.new(
-              :service => service,
-              :vm => self
+            :service => service,
+            :vm => self
           )
         end
 
@@ -75,8 +75,8 @@ module Fog
 
         def volumes
           @volumes ||= id.nil? ? [] : Fog::Compute::Ovirt::Volumes.new(
-              :service => service,
-              :vm => self
+            :service => service,
+            :vm => self
           )
         end
 
@@ -109,7 +109,7 @@ module Fog
           wait_for { stopped? } if attrs[:blocking]
           service.add_to_affinity_group(id, attrs)
         end
-        
+
         def remove_from_affinity_group(attrs)
           wait_for { stopped? } if attrs[:blocking]
           service.remove_from_affinity_group(id, attrs)
@@ -121,16 +121,18 @@ module Fog
           reload
         end
 
+        # rubocop:disable Metrics/AbcSize
         def start_with_cloudinit(options = {})
           wait_for { !locked? } if options[:blocking]
-          if options[:use_custom_script]
-            user_data = { :custom_script => options[:user_data] }
-          else
-            user_data = Hash[YAML.load(options[:user_data]).map{|a| [a.first.to_sym, a.last]}]
-          end
+          user_data = if options[:use_custom_script]
+                        { :custom_script => options[:user_data] }
+                      else
+                        Hash[YAML.safe_load(options[:user_data]).map{|a| [a.first.to_sym, a.last]}]
+                      end
           service.vm_start_with_cloudinit(:id =>id, :user_data =>user_data)
           reload
         end
+        # rubocop:enable Metrics/AbcSize
 
         def stop(options = {})
           service.vm_action(:id =>id, :action => :stop)

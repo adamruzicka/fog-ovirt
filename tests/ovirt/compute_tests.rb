@@ -1,15 +1,14 @@
 Shindo.tests('Fog::Compute[:ovirt]', ['ovirt']) do
-
   compute = Fog::Compute[:ovirt]
 
   tests("Compute attributes") do
-    %w{ ovirt_attrs }.each do |attr|
+    %w{ovirt_attrs}.each do |attr|
       test("it should respond to #{attr}") { compute.respond_to? attr }
     end
   end
 
   tests("Compute collections") do
-    %w{ servers templates clusters interfaces operating_systems }.each do |collection|
+    %w{servers templates clusters interfaces operating_systems}.each do |collection|
       test("it should respond to #{collection}") { compute.respond_to? collection }
     end
   end

@@ -9,6 +9,7 @@ module Fog
 
         attr_accessor :vm
 
+        # rubocop:disable Metrics/AbcSize
         def all(filters = {})
           if vm.is_a? Fog::Compute::Ovirt::Server
             load service.list_vm_volumes(vm.id)
@@ -18,6 +19,7 @@ module Fog
             load service.list_volumes
           end
         end
+        # rubocop:enable Metrics/AbcSize
 
         def get(id)
           new service.get_volume(id)
